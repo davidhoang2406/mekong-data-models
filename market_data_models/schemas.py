@@ -18,6 +18,37 @@ PRICE_SNAPSHOT_AVRO_SCHEMA = fastavro.parse_schema({
     ],
 })
 
+# ── Avro (Kafka message envelope — Schema Registry) ──────────────────────────
+# This is the schema registered with the Confluent Schema Registry for the
+# Kafka message wire format. It mirrors the JSON envelope from message.py.
+
+KAFKA_ENVELOPE_AVRO_SCHEMA_RAW = {
+    "type": "record",
+    "name": "KafkaEnvelope",
+    "namespace": "com.mekong.market_data",
+    "fields": [
+        {"name": "event_type", "type": "string"},
+        {"name": "symbol",     "type": "string"},
+        {"name": "exchange",   "type": "string"},
+        {"name": "timestamp",  "type": "string"},
+        {"name": "source",     "type": "string"},
+        {"name": "payload",    "type": {
+            "type": "record",
+            "name": "PricePayload",
+            "fields": [
+                {"name": "price",      "type": "double"},
+                {"name": "change",     "type": "double"},
+                {"name": "pct_change", "type": "double"},
+                {"name": "volume",     "type": "long"},
+                {"name": "bid",        "type": "double"},
+                {"name": "ask",        "type": "double"},
+            ],
+        }},
+    ],
+}
+
+KAFKA_ENVELOPE_AVRO_SCHEMA = fastavro.parse_schema(KAFKA_ENVELOPE_AVRO_SCHEMA_RAW)
+
 # ── Parquet (batch ingest → MinIO market-analysis) ─────────────────────────────
 
 OHLCV_BAR_SCHEMA = pa.schema([
